@@ -15,6 +15,31 @@ provider "google" {
   zone    = "us-central1-c"
 }
 
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
+resource "google_cloud_run_service" "default" {
+  name     = "terraform-cloudrun"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+
+resource "google_storage_bucket" "auto-expire" {
+  name     = "credot-terraform-test-storage"
+  location = "US"
+}
+
+resource "google_storage_bucket_object" "picture" {
+  name   = "cat01"
+  source = "./images/cat.jpg"
+  bucket = "credot-terraform-test-storage"
 }
